@@ -51,8 +51,8 @@ export default function BookingPage() {
                 <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-black">1</div>
                 <h2 className="text-xl font-bold text-slate-900">Pilih Lapangan</h2>
               </div>
-              <div className="grid sm:grid-cols-2 gap-4">
-                {MOCK_COURTS.slice(0,2).map((court) => (
+              <div className="grid sm:grid-cols-3 gap-4">
+                {MOCK_COURTS.map((court) => (
                   <CourtCard 
                     key={court.id}
                     court={court}
