@@ -51,7 +51,7 @@ export default function Home() {
           </div>
 
           {/* Baris 2: "Play your game." — muncul tipis ke tebal */}
-          <div className="hero-line2 text-5xl md:text-8xl font-black tracking-tighter leading-[1.1] mb-8 gradient-text drop-shadow-lg">
+          <div className="hero-line2 text-5xl md:text-8xl font-black tracking-tighter leading-[1.1] mb-8 gradient-text drop-shadow-lg pb-2">
             Play your game.
           </div>
           
@@ -60,17 +60,12 @@ export default function Home() {
             Platform booking lapangan padel paling simpel. Cek jadwal, pilih jam, langsung main. Tanpa ribet, tanpa telepon.
           </p>
 
-          {/* CTA — muncul tipis ke tebal */}
-          <div className="hero-cta flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+          {/* CTA — single prominent button */}
+          <div className="hero-cta flex items-center justify-center w-full sm:w-auto">
             <Link href="/booking" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto text-lg shadow-[0_8px_30px_-4px_rgba(59,130,246,0.6)]">
+              <button className="w-full sm:w-auto text-lg font-bold text-white bg-blue-600 px-10 py-4 rounded-2xl transition-all duration-300 hover:bg-blue-500 hover:scale-105 hover:shadow-[0_12px_40px_-4px_rgba(59,130,246,0.7)] active:scale-95 shadow-[0_8px_30px_-4px_rgba(59,130,246,0.5)]">
                 Book Now →
-              </Button>
-            </Link>
-            <Link href="/booking" className="w-full sm:w-auto">
-               <Button variant="outline" size="lg" className="w-full sm:w-auto text-lg border-white/30 text-white hover:bg-white/10 hover:border-white/50 bg-white/5 backdrop-blur-sm">
-                Lihat Jadwal
-               </Button>
+              </button>
             </Link>
           </div>
         </div>
