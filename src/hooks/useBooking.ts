@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from '@/lib/auth';
+import { MOCK_ADMIN_BOOKINGS } from '@/lib/adminData';
 
 export const MOCK_COURTS = [
   { id: 1, name: "Padel Court A (Premium)", location: "Banyumanik, Semarang", price: 150000, image: "/images/court-premium.jpg" },
@@ -24,6 +26,8 @@ export const MOCK_TIME_SLOTS = [
 
 export function useBooking() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+  
   const [selectedCourt, setSelectedCourt] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState<number>(new Date().getDate());
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
@@ -43,11 +47,18 @@ export function useBooking() {
     setSelectedSlots(prev => 
       prev.includes(time) 
         ? prev.filter(t => t !== time)
-        : [...prev, time].sort() // Sort to maintain chronological order
+        : [...prev, time].sort()
     );
   };
 
   const checkout = async () => {
+    if (status !== "authenticated" || !session?.user) {
+      setError("Anda harus login untuk melakukan booking.");
+      setIsToastOpen(true);
+      setTimeout(() => router.push("/login"), 2000);
+      return;
+    }
+
     if (!selectedCourt || !selectedDate || selectedSlots.length === 0) {
       setError("Mohon lengkapi pilihan lapangan, tanggal, dan jam.");
       setSuccessMsg('');
@@ -71,8 +82,24 @@ export function useBooking() {
       setIsToastOpen(true);
       setTimeout(() => setIsToastOpen(false), 3000);
     } else {
-      // BERHASIL DIPESAN, ROUTE KE HALAMAN MVP+ CONFIRMATION PAGE!
       const courtData = MOCK_COURTS.find(c => c.id === selectedCourt);
+      
+      // Save to mock database
+      const newId = `BKG-${Math.floor(Math.random() * 900) + 100}`;
+      const now = new Date();
+      
+      MOCK_ADMIN_BOOKINGS.unshift({
+        id: newId,
+        userId: session.user.id, // Ambil dari session token
+        court: courtData?.name || "Unknown Court",
+        date: `${selectedDate} April 2026`,
+        time: selectedSlots.join(", "),
+        status: "pending",
+        total: (courtData?.price || 0) * selectedSlots.length,
+        createdAt: now,
+        expiresAt: new Date(now.getTime() + 15 * 60000), // 15 mins to expire
+      });
+
       const query = new URLSearchParams({
         courtName: courtData?.name || "",
         location: courtData?.location || "",

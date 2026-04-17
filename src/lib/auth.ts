@@ -1,74 +1,16 @@
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
-import prisma from "./prisma";
-import { User } from "@prisma/client";
+import { useState, useEffect } from 'react';
+import { MOCK_USERS } from './adminData';
 
-export const authOptions: NextAuthOptions = {
-  providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Invalid credentials");
-        }
+export function useSession() {
+  const [status, setStatus] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
+  
+  useEffect(() => {
+    // Simulate network authentication lookup
+    setTimeout(() => setStatus("authenticated"), 300);
+  }, []);
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
-        });
-
-        if (!user || !user?.password) {
-          throw new Error("Invalid credentials");
-        }
-
-        const isCorrectPassword = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-
-        if (!isCorrectPassword) {
-          throw new Error("Invalid credentials");
-        }
-
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        };
-      },
-    }),
-  ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        // @ts-ignore
-        token.role = user.role;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        // @ts-ignore
-        session.user.id = token.id as string;
-        // @ts-ignore
-        session.user.role = token.role as string;
-      }
-      return session;
-    },
-  },
-  session: {
-    strategy: "jwt",
-  },
-  pages: {
-    signIn: "/login",
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-};
+  return {
+    data: status === "authenticated" ? { user: MOCK_USERS[0] } : null, // MOCK_USERS[0] is "Budi Santoso"
+    status
+  };
+}
