@@ -5,7 +5,7 @@ import { getErrorMessage } from "@/lib/errorMessage";
 import { fetchJson } from "@/lib/fetchJson";
 
 type AvailabilitySlot = { time: string; available: boolean };
-type Court = { id: string; name: string; location: string; pricePerHour: number; image?: string | null };
+type Court = { id: string; name: string; location: string; pricePerHour: number; image?: string | null; description?: string | null };
 
 export function useBooking() {
   const router = useRouter();

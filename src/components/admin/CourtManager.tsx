@@ -12,6 +12,7 @@ type Court = {
   location: string;
   pricePerHour: number;
   image?: string | null;
+  description?: string | null;
 };
 
 type EditingCourt = {
@@ -20,6 +21,7 @@ type EditingCourt = {
   location: string;
   pricePerHour: number;
   image?: string;
+  description?: string;
 };
 
 export function CourtManager() {
@@ -29,7 +31,10 @@ export function CourtManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    msg: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const refresh = async () => {
     setIsLoading(true);
@@ -37,7 +42,10 @@ export function CourtManager() {
       const data = await fetchJson<Court[]>("/api/courts");
       setCourts(Array.isArray(data) ? data : []);
     } catch (e: unknown) {
-      setToast({ msg: getErrorMessage(e) || "Terjadi kesalahan", type: "error" });
+      setToast({
+        msg: getErrorMessage(e) || "Terjadi kesalahan",
+        type: "error",
+      });
       setCourts([]);
     } finally {
       setIsLoading(false);
@@ -60,6 +68,7 @@ export function CourtManager() {
       location: court.location || "",
       pricePerHour: court.pricePerHour || 0,
       image: court.image || "",
+      description: court.description || "",
     });
     setModalMode("edit");
   };
@@ -74,6 +83,7 @@ export function CourtManager() {
         location: editingCourt.location,
         pricePerHour: Number(editingCourt.pricePerHour),
         image: editingCourt.image || null,
+        description: editingCourt.description || null,
       };
 
       if (modalMode === "add") {
@@ -95,7 +105,10 @@ export function CourtManager() {
       setEditingCourt(null);
       await refresh();
     } catch (e: unknown) {
-      setToast({ msg: getErrorMessage(e) || "Terjadi kesalahan", type: "error" });
+      setToast({
+        msg: getErrorMessage(e) || "Terjadi kesalahan",
+        type: "error",
+      });
     } finally {
       setIsSaving(false);
     }
@@ -104,20 +117,34 @@ export function CourtManager() {
   const handleDelete = async (id: string) => {
     if (!confirm("Yakin ingin menghapus lapangan ini?")) return;
     try {
-      await fetchJson<{ success: boolean }>(`/api/courts/${id}`, { method: "DELETE" });
+      await fetchJson<{ success: boolean }>(`/api/courts/${id}`, {
+        method: "DELETE",
+      });
       setToast({ msg: "Court terhapus.", type: "success" });
       await refresh();
     } catch (e: unknown) {
-      setToast({ msg: getErrorMessage(e) || "Terjadi kesalahan", type: "error" });
+      setToast({
+        msg: getErrorMessage(e) || "Terjadi kesalahan",
+        type: "error",
+      });
     }
   };
 
   return (
     <div className="space-y-6">
-      {toast && <Toast isOpen={true} message={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
+      {toast && (
+        <Toast
+          isOpen={true}
+          message={toast.msg}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
 
       <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-        <h2 className="font-black text-xl text-slate-900">Data Lapangan Padel</h2>
+        <h2 className="font-black text-xl text-slate-900">
+          Data Lapangan Padel
+        </h2>
         <div className="flex gap-2">
           <Button variant="outline" onClick={refresh} isLoading={isLoading}>
             Refresh
@@ -127,20 +154,35 @@ export function CourtManager() {
       </div>
 
       {isLoading ? (
-        <div className="bg-white rounded-2xl border border-slate-100 p-8 animate-pulse">Loading…</div>
+        <div className="bg-white rounded-2xl border border-slate-100 p-8 animate-pulse">
+          Loading…
+        </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {courts.map((c) => (
-            <div key={c.id} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between">
+            <div
+              key={c.id}
+              className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between"
+            >
               <div>
                 <div className="flex justify-between items-start mb-2">
-                  <p className="font-bold text-slate-900">Rp {Number(c.pricePerHour || 0).toLocaleString("id-ID")}/jam</p>
+                  <p className="font-bold text-slate-900">
+                    Rp {Number(c.pricePerHour || 0).toLocaleString("id-ID")}/jam
+                  </p>
                 </div>
-                <h3 className="font-black text-lg text-slate-900 mb-1">{c.name}</h3>
-                <p className="text-slate-500 font-medium text-sm mb-4">{c.location}</p>
+                <h3 className="font-black text-lg text-slate-900 mb-1">
+                  {c.name}
+                </h3>
+                <p className="text-slate-500 font-medium text-sm mb-4">
+                  {c.location}
+                </p>
               </div>
               <div className="flex gap-2">
-                <Button size="full" variant="outline" onClick={() => openEdit(c)}>
+                <Button
+                  size="full"
+                  variant="outline"
+                  onClick={() => openEdit(c)}
+                >
                   Edit
                 </Button>
                 <Button
@@ -155,55 +197,118 @@ export function CourtManager() {
             </div>
           ))}
           {courts.length === 0 && (
-            <div className="col-span-full py-12 text-center text-slate-400 font-bold">Belum ada data lapangan.</div>
+            <div className="col-span-full py-12 text-center text-slate-400 font-bold">
+              Belum ada data lapangan.
+            </div>
           )}
         </div>
       )}
 
       {modalMode && editingCourt && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <form onSubmit={handleSave} className="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl">
-            <h3 className="font-black text-xl text-slate-900 mb-6">{modalMode === "add" ? "Tambah Lapangan" : "Edit Lapangan"}</h3>
+          <form
+            onSubmit={handleSave}
+            className="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl"
+          >
+            <h3 className="font-black text-xl text-slate-900 mb-6">
+              {modalMode === "add" ? "Tambah Lapangan" : "Edit Lapangan"}
+            </h3>
 
             <div className="space-y-4 mb-8">
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nama Lapangan</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                  Nama Lapangan
+                </label>
                 <input
                   required
                   type="text"
                   className="w-full border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-900 focus:outline-blue-500"
                   value={editingCourt.name}
-                  onChange={(e) => setEditingCourt({ ...editingCourt, name: e.target.value })}
+                  onChange={(e) =>
+                    setEditingCourt({ ...editingCourt, name: e.target.value })
+                  }
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Lokasi</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                  Lokasi
+                </label>
                 <input
                   required
                   type="text"
                   className="w-full border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-900 focus:outline-blue-500"
                   value={editingCourt.location}
-                  onChange={(e) => setEditingCourt({ ...editingCourt, location: e.target.value })}
+                  onChange={(e) =>
+                    setEditingCourt({
+                      ...editingCourt,
+                      location: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Harga / Jam</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                  Harga / Jam
+                </label>
                 <input
                   required
                   type="number"
                   min={0}
                   className="w-full border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-900 focus:outline-blue-500"
                   value={editingCourt.pricePerHour ?? ""}
-                  onChange={(e) => setEditingCourt({ ...editingCourt, pricePerHour: Number(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setEditingCourt({
+                      ...editingCourt,
+                      pricePerHour: Number(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Image URL (optional)</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                  Image URL (optional)
+                </label>
                 <input
                   type="text"
+                  placeholder="https://..."
                   className="w-full border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-900 focus:outline-blue-500"
                   value={editingCourt.image ?? ""}
-                  onChange={(e) => setEditingCourt({ ...editingCourt, image: e.target.value })}
+                  onChange={(e) =>
+                    setEditingCourt({ ...editingCourt, image: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                  Deskripsi (optional)
+                </label>
+                <textarea
+                  placeholder="Masukkan deskripsi lapangan..."
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-900 focus:outline-blue-500 resize-none"
+                  rows={3}
+                  value={editingCourt.description ?? ""}
+                  onChange={(e) =>
+                    setEditingCourt({
+                      ...editingCourt,
+                      description: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                  Deskripsi (optional)
+                </label>
+                <textarea
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-900 focus:outline-blue-500 min-h-20 resize-none"
+                  value={editingCourt.description ?? ""}
+                  onChange={(e) =>
+                    setEditingCourt({
+                      ...editingCourt,
+                      description: e.target.value,
+                    })
+                  }
+                  placeholder="Deskripsi lapangan padel..."
                 />
               </div>
             </div>

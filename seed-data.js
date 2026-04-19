@@ -10,7 +10,7 @@ const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-    console.log('🌱 Seeding courts...');
+    console.log('🌱 Seeding courts with images and descriptions...');
 
     // Clear existing data
     await prisma.payment.deleteMany();
@@ -23,26 +23,25 @@ async function main() {
                 name: 'Padel Court A (Premium)',
                 location: 'Banyumanik, Semarang',
                 pricePerHour: 150000,
+                image: '/images/court-premium.jpg',
+                description: 'Lapangan premium standar internasional dengan fasilitas terbaik, pencahayaan profesional LED, dan kualitas permukaan yang sempurna. Ideal untuk pemain profesional dan turnamen.',
             },
             {
                 name: 'Indoor Panoramic Court',
                 location: 'Tembalang, Semarang',
                 pricePerHour: 200000,
+                image: '/images/court-1.jpg',
+                description: 'Lapangan indoor dengan pencahayaan panoramic profesional dan sistem ventilasi modern. Nyaman dimainkan kapan saja tanpa terganggu cuaca. Cocok untuk latihan intensif dan pertandingan resmi.',
             },
             {
                 name: 'Outdoor Classic Court',
                 location: 'Simpang Lima, Semarang',
                 pricePerHour: 120000,
+                image: '/images/court-2.jpg',
+                description: 'Lapangan outdoor dengan udara terbuka dan suasana alami yang santai. Memberikan pengalaman bermain yang lebih menyenangkan. Pilihan terbaik untuk bermain casual dan bersantai dengan teman.',
             },
         ],
     });
 
     console.log(`✅ Courts seeded: ${result.count}`);
 }
-
-main()
-    .catch(e => console.error('Error:', e))
-    .finally(async () => {
-        await prisma.$disconnect();
-        process.exit(0);
-    });

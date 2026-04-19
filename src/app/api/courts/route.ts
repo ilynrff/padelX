@@ -38,6 +38,7 @@ export async function POST(req: Request) {
     const location = payload.location;
     const pricePerHour = payload.pricePerHour;
     const image = payload.image;
+    const description = payload.description;
 
     if (!name || !location || typeof pricePerHour !== "number" || pricePerHour < 0) {
       return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
@@ -49,6 +50,7 @@ export async function POST(req: Request) {
         location: String(location),
         pricePerHour: Math.round(pricePerHour),
         image: image ? String(image) : null,
+        description: description ? String(description) : null,
       },
     });
 

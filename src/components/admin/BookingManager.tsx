@@ -15,6 +15,7 @@ type Booking = {
   status: string;
   totalPrice: number;
   createdAt: string;
+  paymentProofUrl?: string;
   user?: { name?: string };
   court?: { name?: string };
   payment?: { status?: string; proofImage?: string } | null;
@@ -28,6 +29,7 @@ type Props = {
 function AdminBadge({ status }: { status: string }) {
   const s = String(status).toUpperCase();
   if (s === "PENDING") return <span className="bg-orange-100 text-orange-700 font-bold px-2 py-1 rounded text-xs uppercase">Pending</span>;
+  if (s === "PERLU_VERIFIKASI") return <span className="bg-amber-100 text-amber-700 font-bold px-2 py-1 rounded text-xs uppercase">Verification</span>;
   if (s === "CONFIRMED") return <span className="bg-emerald-100 text-emerald-700 font-bold px-2 py-1 rounded text-xs uppercase">Confirmed</span>;
   if (s === "CANCELLED") return <span className="bg-red-100 text-red-700 font-bold px-2 py-1 rounded text-xs uppercase">Cancelled</span>;
   if (s === "EXPIRED") return <span className="bg-slate-200 text-slate-700 font-bold px-2 py-1 rounded text-xs uppercase">Expired</span>;
@@ -136,13 +138,14 @@ export function BookingManager({ initialBookings = [], isLoading = false }: Prop
             value={filter}
             onChange={(e) => {
               const v = e.target.value;
-              if (v === "all" || v === "PENDING" || v === "CONFIRMED" || v === "CANCELLED" || v === "EXPIRED") {
-                setFilter(v);
+              if (v === "all" || v === "PENDING" || v === "CONFIRMED" || v === "CANCELLED" || v === "EXPIRED" || v === "PERLU_VERIFIKASI") {
+                setFilter(v as any);
               }
             }}
           >
             <option value="all">Semua</option>
             <option value="PENDING">Pending</option>
+            <option value="PERLU_VERIFIKASI">Verifikasi</option>
             <option value="CONFIRMED">Confirmed</option>
             <option value="CANCELLED">Cancelled</option>
             <option value="EXPIRED">Expired</option>
@@ -281,9 +284,9 @@ export function BookingManager({ initialBookings = [], isLoading = false }: Prop
 
               <div className="bg-slate-50 rounded-3xl p-5 border border-slate-100 flex flex-col">
                 <p className="text-sm font-bold text-slate-500 mb-4 uppercase tracking-widest">Bukti Pembayaran</p>
-                {selected.payment?.proofImage ? (
+                {selected.paymentProofUrl || selected.payment?.proofImage ? (
                   <div className="w-full h-72 bg-white rounded-2xl overflow-hidden border border-slate-200">
-                    <img src={selected.payment.proofImage} className="w-full h-full object-cover" alt="Proof" />
+                    <img src={selected.paymentProofUrl || selected.payment?.proofImage} className="w-full h-full object-contain" alt="Proof" />
                   </div>
                 ) : (
                   <div className="w-full h-72 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center flex-col text-slate-400">
@@ -291,7 +294,7 @@ export function BookingManager({ initialBookings = [], isLoading = false }: Prop
                   </div>
                 )}
                 <div className="mt-4 text-xs font-bold text-slate-500">
-                  Payment status: {selected.payment?.status || "NOT_SUBMITTED"}
+                  Payment status: {selected.payment?.status || (selected.paymentProofUrl ? "SUBMITTED" : "NOT_SUBMITTED")}
                 </div>
               </div>
             </div>
